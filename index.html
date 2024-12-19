@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Графік P_w від λ</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.0.2"></script>
+</head>
+<body>
+    <canvas id="pwChart" width="800" height="400"></canvas>
+
+    <script>
+        function calculatePw(lambda, mu, n) {
+            const rho = lambda / (n * mu);
+            if (rho >= 1) {
+                return 1;
+            }
+
+            let P0 = 0;
+            for (let k = 0; k < n; k++) {
+                P0 += Math.pow(lambda / mu, k) / factorial(k);
+            }
+            P0 += (Math.pow(lambda / mu, n) / (factorial(n) * (1 - rho)));
+            P0 = 1 / P0;
+
+            const Pw = (P0 * Math.pow(lambda / mu, n) * rho) / (factorial(n) * Math.pow(1 - rho, 2));
+            return Pw;
+        }
+
+        function factorial(num) {
+            if (num === 0 || num === 1) return 1;
+            let result = 1;
+            for (let i = 2; i <= num; i++) {
+                result *= i;
+            }
+            return result;
+        }
+
+        const n = 61;
+        const t_obs = 0.1;
+        const mu = 1 / t_obs;
+        const targetPw = 0.335;
+
+        // Визначаємо точку для λ = 495
+        const lambdaFixed = 495;
+        const PwFixed = calculatePw(lambdaFixed, mu, n).toFixed(4);
+
+        // Генерація даних для графіка
+        const lambdaValues = [];
+        const PwValues = [];
+        
+        let lambdaStep = 1;
+        let lambdaStart = 450;
+        let maxIterations = 550;
+        
+        for (let i = 450; i < maxIterations; i++) {
+            const Pw = calculatePw(lambdaStart, mu, n);
+            lambdaValues.push(lambdaStart.toFixed(3));
+            PwValues.push(Pw.toFixed(4));
+
+            lambdaStart += lambdaStep;
+        }
+
+        const ctx = document.getElementById('pwChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: lambdaValues,
+                datasets: [
+                    {
+                        label: 'P_w від λ',
+                        data: PwValues,
+                        borderColor: 'blue',
+                        borderWidth: 2,
+                        fill: false,
+                        pointRadius: 3,
+                        pointBackgroundColor: 'red'
+                    },
+                    {
+                        label: `Точка λ = ${lambdaFixed}`,
+                        data: [null, null, null, null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null, PwFixed], // Додаємо тільки одну точку для λ = 495
+                        backgroundColor: 'green',
+                        borderWidth: 0,
+                        pointRadius: 6,
+                        pointBackgroundColor: 'green' // Колір точки
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: { title: { display: true, text: 'Інтенсивність λ (задач/сек)' } },
+                    y: { title: { display: true, text: 'Ймовірність черги P_w' }, min: 0, max: 1.1 }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
