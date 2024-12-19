@@ -42,11 +42,9 @@
         const mu = 1 / t_obs;
         const targetPw = 0.335;
 
-        // Визначаємо точку для λ = 495
         const lambdaFixed = 495;
         const PwFixed = calculatePw(lambdaFixed, mu, n).toFixed(4);
 
-        // Генерація даних для графіка
         const lambdaValues = [];
         const PwValues = [];
         
@@ -83,7 +81,7 @@
                         backgroundColor: 'green',
                         borderWidth: 0,
                         pointRadius: 6,
-                        pointBackgroundColor: 'green' // Колір точки
+                        pointBackgroundColor: 'green'
                     }
                 ]
             },
